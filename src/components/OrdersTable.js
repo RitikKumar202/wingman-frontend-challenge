@@ -1,12 +1,19 @@
 import React, { useState } from "react";
 import productsData from "../data/products.json";
 import { images } from "../utils/ImageUtils";
+import { useNavigate } from "react-router-dom";
 
 const OrdersTable = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [sortConfig, setSortConfig] = useState({ key: "orderValue", direction: "asc" });
     const itemsPerPage = 4;
     const totalPages = Math.ceil(productsData.length / itemsPerPage);
+
+    const navigate = useNavigate(); // Initialize useNavigate
+
+    const handleViewChat = (productId) => {
+        navigate(`/chats?productId=${productId}`); // Navigate to /chats with productId
+    };
 
     const startIndex = (currentPage - 1) * itemsPerPage;
 
@@ -75,6 +82,7 @@ const OrdersTable = () => {
                                 <td className="p-4 font-bold">{product.commission}</td>
                                 <td className="p-4">
                                     <button
+                                        onClick={() => handleViewChat(product.id)}
                                         className="flex gap-3 items-center justify-center text-[#8A94A6] hover:text-gray-600"
                                     >
                                         View Chat

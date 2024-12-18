@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
+import productsData from "../data/products.json";
 
 const dummyResponses = {
     products: "Sure! We have a variety of products available, including electronics, fashion, and home essentials. What are you looking for?",
@@ -13,6 +15,7 @@ const WingmanChatbot = () => {
     const [date, setDate] = useState("");
     const [isTyping, setIsTyping] = useState(false);
     const chatContainerRef = useRef(null);
+    const location = useLocation();
 
     useEffect(() => {
         const now = new Date();
@@ -20,12 +23,37 @@ const WingmanChatbot = () => {
         setDate(formattedDate);
 
         const formattedTime = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
-        setMessages([{
-            sender: "bot",
-            text: "Hi! I'm Wingman, your AI assistant. I'm here to assist you with any queries you have. Let me know what you need help with!",
-            time: formattedTime,
-        }]);
-    }, []);
+
+        const searchParams = new URLSearchParams(location.search);
+        const productId = searchParams.get("productId");
+
+        if (productId) {
+            const product = productsData.find((p) => p.id === parseInt(productId, 10));
+            if (product) {
+                setMessages([
+                    {
+                        sender: "bot",
+                        text: `Welcome! Here is the information about "${product.name}"`,
+                        time: formattedTime,
+                    },
+                    {
+                        sender: "bot",
+                        text: `Order Date: ${product.date}\nOrder Value: ${product.orderValue}\nCommission: ${product.commission}`,
+                        time: formattedTime,
+                    },
+                ]);
+                return;
+            }
+        }
+
+        setMessages([
+            {
+                sender: "bot",
+                text: "Hi! I'm Wingman, your AI assistant. I'm here to assist you with any queries you have. Let me know what you need help with!",
+                time: formattedTime,
+            },
+        ]);
+    }, [location.search]);
 
     useEffect(() => {
         if (chatContainerRef.current) {
@@ -65,7 +93,7 @@ const WingmanChatbot = () => {
     };
 
     return (
-        <div className="flex flex-col items-center min-h-[500px] w-full bg-gray-100 px-4 py-5 md:px-10">
+        <div className="flex flex-col items-center h-screen min-h-[500px] w-full bg-gray-100 px-4 py-5 md:px-10">
             <div className="bg-white w-full rounded-lg shadow-lg flex flex-col overflow-hidden" style={{ height: "600px" }}>
                 <div className="bg-[#115E56] text-white p-4 text-center font-semibold text-lg">Wingman Chatbot</div>
                 <div className="text-center text-gray-500 text-sm mt-2">{date}</div>
